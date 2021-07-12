@@ -1,7 +1,7 @@
 include:
   - project: dke/apps/templates/job-templates
     ref: develop
-    file: job-templates.yml
+    file: jobs-templates.yml
 
 
 image: "python:3.6"
