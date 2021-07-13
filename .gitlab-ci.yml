@@ -23,5 +23,3 @@ unit_test:
 lint_check:
   stage: lint-check
   extends: .flake8
-  variables:
-    TEST_VAR: '88'
