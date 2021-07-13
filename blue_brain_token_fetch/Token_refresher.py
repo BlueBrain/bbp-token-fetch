@@ -1,6 +1,8 @@
 """
-This class allows the fetching and the automatic refreshing of the Nexus token using Keycloak.
-It contains 2 public methods to get a fresh Nexus access token and to get its life duration.
+This class allows the fetching and the automatic refreshing of the Nexus token using 
+Keycloak.
+It contains 2 public methods to get a fresh Nexus access token and to get its life 
+duration.
 For more informations about Nexus, see https://bluebrainnexus.io/
 """
 import yaml
@@ -42,9 +44,9 @@ class TokenFetcher:
         ),
     ):
         """
-        Constructs all the necessary attributes for the TokenFetcher object. After that, call the
-        appropried method launching the perpetual token refreshing depending on whether identifiers
-        have been given or not.
+        Constructs all the necessary attributes for the TokenFetcher object. After
+        that, call the appropried method launching the perpetual token refreshing
+        depending on whether identifiers have been given or not.
 
         Parameters
         ----------
@@ -68,8 +70,8 @@ class TokenFetcher:
 
     def init_with_prompt(self, keycloak_config_file):
         """
-        Promt username/password and initialise the keycloack instance and launch the perpetual
-        refreshing of the refresh token.
+        Promt username/password and initialise the keycloack instance and launch the
+        perpetual refreshing of the refresh token.
 
         Parameters
         ----------
@@ -88,7 +90,8 @@ class TokenFetcher:
 
     def init_no_prompt(self, username, password, keycloak_config_file):
         """
-        Initialise the keycloack instance and launch the perpetual refreshing of the refresh token.
+        Initialise the keycloack instance and launch the perpetual refreshing of the
+        refresh token.
 
         Parameters
         ----------
@@ -130,8 +133,8 @@ class TokenFetcher:
 
     def _fetchTokens(self, username, password, keycloak_config_file):
         """
-        Configure a Keycloack instance using the configuration file and the identifiants then fetch
-        a refresh token and its life duration.
+        Configure a Keycloack instance using the configuration file and the
+        identifiants then fetch a refresh token and its life duration.
 
         Parameters
         ----------
@@ -163,14 +166,14 @@ class TokenFetcher:
             exit(1)
         except KeyError as error:
             print(
-                f"KeyError: {error}. The keys 'SERVER_URL', 'CLIENT_ID' and 'REALM_NAME' are "
-                "missing in keycloack configuration file"
+                f"KeyError: {error}. The keys 'SERVER_URL', 'CLIENT_ID' and "
+                "'REALM_NAME' are missing in keycloack configuration file"
             )
             exit(1)
         except TypeError as error:
             print(
-                f"TypeError: {error}. The keys 'SERVER_URL', 'CLIENT_ID' and 'REALM_NAME' are "
-                "missing in keycloack configuration file"
+                f"TypeError: {error}. The keys 'SERVER_URL', 'CLIENT_ID' and "
+                "'REALM_NAME' are missing in keycloack configuration file"
             )
             exit(1)
         except KeycloakError as error:
