@@ -1,5 +1,4 @@
-"""
-This class allows the fetching and the automatic refreshing of the Nexus token using 
+"""This class allows the fetching and the automatic refreshing of the Nexus token using 
 Keycloak.
 It contains 2 public methods to get a fresh Nexus access token and to get its life 
 duration.

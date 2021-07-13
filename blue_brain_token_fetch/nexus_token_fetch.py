@@ -1,7 +1,8 @@
 """
 This CLI allows the fetching and the automatic refreshing of the Nexus token using 
-Keycloak. Its value can be written periodically in a file whose path is given in input 
-or be displayed on the console output as desired.
+Keycloak.
+Its value can be written periodically in a file whose path is given in input or be 
+displayed on the console output as desired.
 For more informations about Nexus, see https://bluebrainnexus.io/
 """
 import os
@@ -79,7 +80,7 @@ def token_fetcher(
     username/password values.
     Then it writes it in the given file or displayed it on the console output every
     given 'refresh_period'.\n
-    Finally, the process is stopped when the duration reach the value given by the
+    Finally, the process is stopped when the duration reach the value given by the 
     'timeout' argument.
     """
     if isinstance(password, HiddenPassword):
@@ -108,10 +109,10 @@ def token_fetcher(
         ):
             print_flag_a += 1
             print(
-                f"The access token life span (= "
-                "{myTokenFetcher.getAccessTokenDuration()} seconds) is shorter than "
-                "the refresh period (= {refresh_period} seconds). The latter thus "
-                "becomes equal to {myTokenFetcher.getAccessTokenDuration()} seconds."
+                "The access token life span (= "
+                f"{myTokenFetcher.getAccessTokenDuration()} seconds) is shorter than "
+                f"the refresh period (= {refresh_period} seconds). The latter thus "
+                f"becomes equal to {myTokenFetcher.getAccessTokenDuration()} seconds."
             ),
             refresh_period = myTokenFetcher.getAccessTokenDuration()
 
@@ -119,7 +120,7 @@ def token_fetcher(
             print_flag_b += 1
             print(
                 f"The timeout argument (= {timeout} seconds) is shorter than the "
-                "refresh period (= {refresh_period} seconds). The app will shut down "
+                f"refresh period (= {refresh_period} seconds). The app will shut down "
                 "after one refresh period."
             ),
 
