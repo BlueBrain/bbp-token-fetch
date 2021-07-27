@@ -40,6 +40,12 @@ blue-brain-token-fetch --token-file ./token.txt \
               	       --refresh-period 10 \
                        --timeout 3600 \
 ```
+Note: If you want to regaining control on the keyboard you can launch the CLI then kill its process then relaunch it in background mode by doing:
+```
+blue-brain-token-fetch
+# ctrl+z
+bg
+```
 - If imported in a script:
 ```
 myTokenFetcher = TokenFetcher(username, password, keycloak_config_file) #instantiate
