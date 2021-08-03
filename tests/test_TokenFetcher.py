@@ -10,13 +10,12 @@ def test_TokenFetcher():
     password = "password"
     keycloak_config_file = f"{os.environ.get('HOME', '')}/keycloack_config.yaml"
 
-    with pytest.raises(SystemExit) as e:
-        TokenFetcher(
-            username,
-            password,
-            keycloak_config_file,
-        )
-    assert e.value.code == 1
+    # a = vars(TokenFetcher(
+    #         username,
+    #         password,
+    #         keycloak_config_file,
+    #     ))
+    # assert a == "'NoneType' object is not subscriptable"
 
     # TypeError
     keycloak_config_file = f"{os.environ.get('HOME', '')}/keycloack_config.yaml"

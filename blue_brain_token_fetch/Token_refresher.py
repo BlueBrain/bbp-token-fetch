@@ -11,6 +11,9 @@ import getpass
 import threading
 from keycloak import KeycloakOpenID
 from keycloak.exceptions import KeycloakError, KeycloakAuthenticationError
+from bba_dataset_push.logging import create_log_handler
+
+L = create_log_handler(__name__, "./Token_refresher.log")
 
 
 class TokenFetcher:
@@ -58,9 +61,9 @@ class TokenFetcher:
         if username and password:
             self.init_no_prompt(username, password, keycloak_config_file)
         else:
-            self.init_with_prompt()
+            self.init_with_prompt(keycloak_config_file)
 
-    def init_with_prompt(self):
+    def init_with_prompt(self, keycloak_config_file):
         """
         Promt username, password and keycloak instance configuration parameters and "
         initialise the keycloack instance and launch the perpetual refreshing of the "
@@ -73,31 +76,21 @@ class TokenFetcher:
             username = detected_user
         password = getpass.getpass()
 
-        keycloak_config_file = f"{os.environ.get('HOME', '')}/keycloack_config.yaml"
-        if (
-            not os.path.exists(keycloak_config_file)
-            or os.path.getsize(keycloak_config_file) == 0
-        ):
-            print(
-                f"Keycloak configuration file not found at '{keycloak_config_file}'. "
-                "This latter will be created with the following given configuration :"
+        if not keycloak_config_file:
+            keycloak_config_file = (
+                f"{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml"
             )
-            SERVER_URL = input("Enter the server url : ")
-            CLIENT_ID = input("Enter the client id : ")
-            REALM_NAME = input("Enter the realm name : ")
-            config_dict = {
-                "SERVER_URL": SERVER_URL,
-                "CLIENT_ID": CLIENT_ID,
-                "REALM_NAME": REALM_NAME,
-            }
-            print(
-                "This configuration will be saved in the file '{keycloak_config_file}' "
-                "that will be reused next time."
-            )
-            with open(keycloak_config_file, "w") as f:
-                yaml.dump(config_dict, f)
-
-        self._fetchTokens(username, password, keycloak_config_file)
+            if not os.path.exists(keycloak_config_file):
+                L.info(
+                    f"Keycloak configuration file not found at '{keycloak_config_file}'. "
+                    "This latter will be created with the following given configuration :"
+                )
+        server_url, client_id, realm_name, save_config = self._return_keycloak_config(
+            keycloak_config_file
+        )
+        self._fetchTokens(
+            username, password, server_url, client_id, realm_name, save_config
+        )
         self._refreshPerpetualy(username, password)
 
     def init_no_prompt(self, username, password, keycloak_config_file):
@@ -114,8 +107,86 @@ class TokenFetcher:
             keycloak_config_file : int
                 Path of the keycloack configuration file
         """
-        self._fetchTokens(username, password, keycloak_config_file)
+        server_url, client_id, realm_name, save_config = self._return_keycloak_config(
+            keycloak_config_file
+        )
+        self._fetchTokens(
+            username, password, server_url, client_id, realm_name, save_config
+        )
         self._refreshPerpetualy(username, password)
+
+    def _return_keycloak_config(self, keycloak_config_file, save_config=True):
+
+        if keycloak_config_file:
+            try:
+                server_url, client_id, realm_name = self._read_keycloak_config_file(
+                    keycloak_config_file
+                )
+                save_config = False
+            except Exception as e:
+                L.error(
+                    f"Error when extracting the keycloak configuration from the input"
+                    f"'{keycloak_config_file}'. {e}."
+                )
+                exit(1)
+        elif os.path.exists(
+            f"{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml"
+        ):
+            L.info(
+                "Keycloak configuration file found in $HOME/.token_fetch directory : "
+                f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'"
+            )
+            try:
+                server_url, client_id, realm_name = self._read_keycloak_config_file(
+                    f"{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml"
+                )
+                save_config = False
+
+            except Exception as e:
+                L.info(
+                    f"Error when extracting the keycloak configuration from  "
+                    f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'. {e}.\nThis "
+                    "latter will be reset with the new given configuration:"
+                )
+                server_url = input("Enter the server url : ")
+                client_id = input("Enter the client id : ")
+                realm_name = input("Enter the realm name : ")
+        else:
+            L.info(
+                "No keycloak configuration file given in input or found in $HOME/.token_fetch "
+                "directory.\n> Please enter the new configuration (this will be saved "
+                "for future use if valid) >"
+            )
+            server_url = input("Enter the server url : ")
+            client_id = input("Enter the client id : ")
+            realm_name = input("Enter the realm name : ")
+
+        return server_url, client_id, realm_name, save_config
+
+    def _read_keycloak_config_file(self, keycloak_config_file):
+
+        try:
+            config_file = open(keycloak_config_file)
+            config_content = yaml.safe_load(config_file.read().strip())
+            config_file.close()
+            return (
+                config_content["SERVER_URL"],
+                config_content["CLIENT_ID"],
+                config_content["REALM_NAME"],
+            )
+        except OSError as error:
+            raise OSError(f"⚠️  OSError. {error}")
+        except KeyError as error:
+            raise KeyError(
+                f"⚠️  KeyError {error}. The keycloak instance is configured using the "
+                "keys 'SERVER_URL', 'CLIENT_ID' and 'REALM_NAME' extracted from the "
+                "keycloack configuration file"
+            )
+        except TypeError as error:
+            raise TypeError(
+                f"⚠️  TypeError {error}. The keys 'SERVER_URL', 'CLIENT_ID' and "
+                "'REALM_NAME' are missing in keycloack configuration file"
+            )
 
     def _periodically_refresh_token(self):
         """
@@ -143,7 +214,9 @@ class TokenFetcher:
         )
         tokenRefreshingThread.start()
 
-    def _fetchTokens(self, username, password, keycloak_config_file):
+    def _fetchTokens(
+        self, username, password, server_url, client_id, realm_name, save_config=True
+    ):
         """
         Configure a Keycloack instance using the configuration file and the
         identifiants then fetch a refresh token and its life duration.
@@ -158,13 +231,10 @@ class TokenFetcher:
                 Path of the keycloack configuration file
         """
         try:
-            config_file = open(keycloak_config_file)
-            config_content = yaml.safe_load(config_file.read().strip())
-            config_file.close()
             self._keycloak_openid = KeycloakOpenID(
-                server_url=config_content["SERVER_URL"],
-                client_id=config_content["CLIENT_ID"],
-                realm_name=config_content["REALM_NAME"],
+                server_url=server_url,
+                client_id=client_id,
+                realm_name=realm_name,
             )
 
             self._keycloak_payload = self._keycloak_openid.token(username, password)
@@ -173,30 +243,31 @@ class TokenFetcher:
             self._refresh_token = self._keycloak_payload["refresh_token"]
             self._refresh_token_duration = self._keycloak_payload["refresh_expires_in"]
 
-        except OSError as error:
-            print(f"OSError: {error}.")
-            exit(1)
-        except KeyError as error:
-            print(
-                f"KeyError: {error}. The keycloak instance is configured using the "
-                "keys 'SERVER_URL', 'CLIENT_ID' and 'REALM_NAME' extracted from the "
-                "keycloack configuration file"
-            )
-            exit(1)
-        except TypeError as error:
-            print(
-                f"TypeError: {error}. The keys 'SERVER_URL', 'CLIENT_ID' and "
-                "'REALM_NAME' are missing in keycloack configuration file"
-            )
-            exit(1)
+            config_dict = {
+                "SERVER_URL": server_url,
+                "CLIENT_ID": client_id,
+                "REALM_NAME": realm_name,
+            }
+
+            if save_config:
+                try:
+                    os.makedirs(f"{os.environ.get('HOME', '')}/.token_fetch")
+                except FileExistsError:
+                    pass
+                keycloak_config_file = (
+                    f"{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml"
+                )
+                with open(f"{keycloak_config_file}", "w") as f:
+                    yaml.dump(config_dict, f)
+                L.info(
+                    "This configuration will be saved in the file "
+                    f"'{keycloak_config_file}' that will be reused next time."
+                )
         except KeycloakError as error:
-            print(f"Authentication failed. {error}.")
-            with open(keycloak_config_file, "w") as f:
-                f.truncate()
-            print("> Content of the keycloak configuration file has been reset.")
+            L.error(f"⚠️  KeycloakError. Authentication failed, {error}.")
             exit(1)
         except KeycloakAuthenticationError as error:
-            print(f"Authentication failed. {error}")
+            L.error(f"⚠️  KeycloakAuthenticationError. Authentication failed, {error}")
             exit(1)
 
     def getAccessToken(self):

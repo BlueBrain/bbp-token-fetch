@@ -19,19 +19,24 @@ def test_convert_duration_to_sec():
     # Errors:
 
     duration = "-0.5sec"
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         convert_duration_to_sec(duration)
-    assert e.value.code == 1
+    assert "The number detected in the input duration need to be positive" in str(
+        e.value
+    )
 
     duration = "time"
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(TypeError) as e:
         convert_duration_to_sec(duration)
-    assert e.value.code == 1
+    assert "not of the form:\n'{float > 0}{{eventual unit of time}}'" in str(e.value)
 
     duration = "5weeks"
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         convert_duration_to_sec(duration)
-    assert e.value.code == 1
+    assert (
+        "does not correspond to these time units : seconds, minutes, hours, days"
+        in str(e.value)
+    )
 
 
 def test_convert_string_to_time_unit():
@@ -43,6 +48,9 @@ def test_convert_string_to_time_unit():
     assert _convert_string_to_time_unit(time_unit) == 86400
 
     time_unit = "others"
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         _convert_string_to_time_unit(time_unit)
-    assert e.value.code == 1
+    assert (
+        "does not correspond to these time units : seconds, minutes, hours, days"
+        in str(e.value)
+    )

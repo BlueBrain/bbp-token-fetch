@@ -34,16 +34,14 @@ def convert_duration_to_sec(duration):
         if float(match.group(1)) > 0:
             return float(match.group(1)) * coefficient
         else:
-            print(
-                "Error. The number detected in the input duration need to be positive."
+            raise ValueError(
+                "The number detected in the input duration need to be positive."
             )
-            exit(1)
     else:
-        print(
-            f"Error. Input duration '{duration}' is not of the form:\n "
-            "'{float > 0}{eventual unit of time}'"
+        raise TypeError(
+            f"Input duration '{duration}' is not of the form:\n'{{float > 0}}"
+            "{{eventual unit of time}}'"
         )
-        exit(1)
 
 
 def _convert_string_to_time_unit(time_unit):
@@ -62,8 +60,7 @@ def _convert_string_to_time_unit(time_unit):
     elif time_unit in days:
         return d
     else:
-        print(
-            f"Error. Input time_unit {time_unit} does not correspond to these time "
-            "units : seconds, minutes, hours, days."
+        raise ValueError(
+            f"Input time_unit {time_unit} does not correspond to these time units : "
+            "seconds, minutes, hours, days."
         )
-        exit(1)
