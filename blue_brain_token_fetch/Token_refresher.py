@@ -140,8 +140,8 @@ class TokenFetcher:
                 L.info(
                     f"Error when extracting the keycloak configuration from  "
                     f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'"
-                    ". {e}.\nThis latter will be reset with the new given configuration"
-                    ":"
+                    f". {e}.\nThis latter will be reset with the new given "
+                    "configuration:"
                 )
                 server_url = input("Enter the server url : ")
                 client_id = input("Enter the client id : ")

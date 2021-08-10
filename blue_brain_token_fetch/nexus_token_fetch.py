@@ -48,7 +48,7 @@ class HiddenPassword(object):
     default=True,
     help=(
         "Flag option allowing for 3 distinct outputs:\t\t\t"
-        "- '{not_given}' : By default the fetched token will be written in the file "
+        "- {not_given} : By default the fetched token will be written in the file "
         "located at $HOME/.token_fetch/Token,\t\t\t\t"
         "- {-o/--output} : Providing only the flag will print the token on the "
         "console output,\t"
