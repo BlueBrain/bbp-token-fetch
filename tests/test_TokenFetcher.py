@@ -1,4 +1,3 @@
-import os
 import pytest
 from blue_brain_token_fetch.Token_refresher import TokenFetcher
 

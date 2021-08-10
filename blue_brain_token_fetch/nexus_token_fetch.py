@@ -8,11 +8,9 @@ For more informations about Nexus, see https://bluebrainnexus.io/
 import os
 import click
 import time
-import yaml
 import logging
 from blue_brain_token_fetch.Token_refresher import TokenFetcher
 from blue_brain_token_fetch.duration_converter import convert_duration_to_sec
-from bba_data_integrity_check.logging import log_args
 from blue_brain_token_fetch import __version__
 
 L = logging.getLogger(__name__)
