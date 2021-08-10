@@ -102,8 +102,8 @@ class HiddenPassword(object):
     help=(
         "The path to the yaml file containing the configuration to create the "
         "keycloak instance. If not provided, it will search in your $HOME directory "
-        f"for a '{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml' file containing "
-        "the keycloak configuration.\t\tIf this file does not exist or the "
+        f"for a '{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml' file "
+        "containing the keycloak configuration.\t\tIf this file does not exist or the "
         "configuration inside is wrong, the configuration will be prompt in the "
         "console output and saved in the $HOME directory under the name: "
         f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'."
@@ -157,8 +157,6 @@ def token_fetcher(
     flag_rp = 0
     flag_to = 0
     flag_console = 0
-    # UP = "\x1B[6F" #A
-    # CLR = "\x1B[0K"
     while True:
 
         myAccessToken = myTokenFetcher.getAccessToken()
@@ -169,7 +167,7 @@ def token_fetcher(
             and myTokenFetcher.getAccessTokenDuration() // 2 < refresh_period
         ):
             flag_rp += 1
-            print(
+            L.info(
                 f"The refresh period (= {refresh_period} seconds) is greater than the "
                 "value of half the access token life span "
                 f"(= {myTokenFetcher.getAccessTokenDuration()//2:g} seconds)). The "
@@ -188,25 +186,25 @@ def token_fetcher(
                     exit(1)
 
                 if timeout < refresh_period:
-                    print(
+                    L.info(
                         f"The timeout argument (= {timeout:g} seconds) is shorter "
                         f"than the refresh period (= {refresh_period:g} seconds). The "
                         "app will shut down after one refresh period."
                     ),
 
         if output == "Console":
-            print("\033[H\033[J")
             if flag_console == 0:
                 flag_console += 1
                 print(
                     "\n===================== Nexus Token =====================\n\n"
                     f"This access token will be refreshed every {refresh_period:g} "
-                    "seconds:\n\n"
+                    f"seconds:\n\n"
                 )
-            # print(f"{myAccessToken}",end = "\r")
-            print(f"{myAccessToken}")
+                print(f"{myAccessToken}")
+            else:
+                print(f"\x1B[7A{myAccessToken}")
         else:
-            print(
+            L.info(
                 f"The token will be written in the file '{output}' every "
                 f"{refresh_period:g} seconds.\r"
             )
@@ -218,7 +216,7 @@ def token_fetcher(
 
         if timeout:
             if time.time() > (start_time + timeout):
-                print("\n> Timeout reached, successfully exit.")
+                L.info("\n> Timeout reached, successfully exit.")
                 exit(1)
 
 

@@ -49,7 +49,7 @@ class TokenFetcher:
                 gaspard identifiant to access the Nexus token
             password : str
                 gaspard identifiant to access the Nexus token
-            keycloak_config_file : int
+            keycloak_config_file : str (file path)
                 Path of the keycloack configuration file
         """
 
@@ -68,6 +68,11 @@ class TokenFetcher:
         Promt username, password and keycloak instance configuration parameters and "
         initialise the keycloack instance and launch the perpetual refreshing of the "
         "refresh token.
+
+        Parameters
+        ----------
+            keycloak_config_file : str (file path)
+                Path of the keycloack configuration file
         """
 
         detected_user = getpass.getuser()
@@ -76,18 +81,7 @@ class TokenFetcher:
             username = detected_user
         password = getpass.getpass()
 
-        if not keycloak_config_file:
-            keycloak_config_file = (
-                f"{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml"
-            )
-            if not os.path.exists(keycloak_config_file):
-                L.info(
-                    f"Keycloak configuration file not found at '{keycloak_config_file}'. "
-                    "This latter will be created with the following given configuration :"
-                )
-        server_url, client_id, realm_name, save_config = self._return_keycloak_config(
-            keycloak_config_file
-        )
+        server_url, client_id, realm_name, save_config = self._return_keycloak_config()
         self._fetchTokens(
             username, password, server_url, client_id, realm_name, save_config
         )
@@ -104,7 +98,7 @@ class TokenFetcher:
                 gaspard identifiant to access the Nexus token
             password : str
                 gaspard identifiant to access the Nexus token
-            keycloak_config_file : int
+            keycloak_config_file : str (file path)
                 Path of the keycloack configuration file
         """
         server_url, client_id, realm_name, save_config = self._return_keycloak_config(
@@ -115,7 +109,7 @@ class TokenFetcher:
         )
         self._refreshPerpetualy(username, password)
 
-    def _return_keycloak_config(self, keycloak_config_file, save_config=True):
+    def _return_keycloak_config(self, keycloak_config_file=None, save_config=True):
 
         if keycloak_config_file:
             try:
@@ -145,17 +139,19 @@ class TokenFetcher:
             except Exception as e:
                 L.info(
                     f"Error when extracting the keycloak configuration from  "
-                    f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'. {e}.\nThis "
-                    "latter will be reset with the new given configuration:"
+                    f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'"
+                    ". {e}.\nThis latter will be reset with the new given configuration"
+                    ":"
                 )
                 server_url = input("Enter the server url : ")
                 client_id = input("Enter the client id : ")
                 realm_name = input("Enter the realm name : ")
         else:
             L.info(
-                "No keycloak configuration file given in input or found in $HOME/.token_fetch "
-                "directory.\n> Please enter the new configuration (this will be saved "
-                "for future use if valid) >"
+                "No keycloak configuration file given in input or found in "
+                "$HOME/.token_fetch directory. A new keycloak configuration file will "
+                "be created with the given configuration:\n> Please enter the new "
+                "configuration to be saved >"
             )
             server_url = input("Enter the server url : ")
             client_id = input("Enter the client id : ")
@@ -227,8 +223,14 @@ class TokenFetcher:
                 gaspard identifiant to access the Nexus token
             password : str
                 gaspard identifiant to access the Nexus token
-            keycloak_config_file : int
-                Path of the keycloack configuration file
+            server_url : str
+                url of the  server (keycloak configuration)
+            client_id : str
+                client id (keycloak configuration)
+            realm_name : str
+                name of the realm (keycloak configuration)
+            save_config : boolean
+                Save the given configuration in the keycloak configuration file or not
         """
         try:
             self._keycloak_openid = KeycloakOpenID(
@@ -261,7 +263,7 @@ class TokenFetcher:
                     yaml.dump(config_dict, f)
                 L.info(
                     "This configuration will be saved in the file "
-                    f"'{keycloak_config_file}' that will be reused next time."
+                    "'{keycloak_config_file}' that will be reused next time."
                 )
         except KeycloakError as error:
             L.error(f"⚠️  KeycloakError. Authentication failed, {error}.")
