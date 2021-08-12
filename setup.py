@@ -20,7 +20,7 @@ setup(
         "python-keycloak>=0.24.0",
         "python-keycloak",
         "pathlib",
-        "PyYAML>=5.4"
+        "PyYAML>=5.4",
     ],
     extras_require={
         "dev": ["pytest>=4.3", "pytest-cov==2.10.0"],

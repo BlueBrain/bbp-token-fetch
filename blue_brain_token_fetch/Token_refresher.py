@@ -16,6 +16,7 @@ from keycloak.exceptions import KeycloakError, KeycloakAuthenticationError
 L = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 class TokenFetcher:
     """
     A class to represent a Token Fetcher.
