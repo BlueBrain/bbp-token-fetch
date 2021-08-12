@@ -28,11 +28,3 @@ def test_TokenFetcher():
             keycloak_config_file,
         )
     assert e.value.code == 1
-
-    # KeycloakError
-    with pytest.raises(SystemExit) as e:
-        TokenFetcher(
-            username,
-            password,
-        )
-    assert e.value.code == 1
