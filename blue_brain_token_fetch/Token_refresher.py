@@ -11,7 +11,7 @@ import getpass
 import threading
 from keycloak import KeycloakOpenID
 from keycloak.exceptions import KeycloakError, KeycloakAuthenticationError
-from bba_dataset_push.logging import create_log_handler
+from blue_brain_token_fetch.logging import create_log_handler
 
 L = create_log_handler(__name__, "./Token_refresher.log")
 
