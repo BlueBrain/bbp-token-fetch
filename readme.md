@@ -24,7 +24,7 @@ From now on, the executable **blue-brain-token-fetch** is in your PATH.
 - **--username** - [Prompt] Username to request the access token. Default is the username detected by whoami (environmental variable $USER).
 - **--password** - [Prompt] Password to request the access token.
 - **--output / -o** - [Flag] Flag option allowing for 3 distinct outputs:
-  - '{not_given}' : By default the fetched token will be written in the file located at
+  - {not_given} : By default the fetched token will be written in the file located at
     $HOME/.token_fetch/Token,
   - {-o/--output} : Providing only the flag will print the token on the console output,
   - {-o/--output} {PATH}: If a value (argument 'path') is given as a file path, the token
