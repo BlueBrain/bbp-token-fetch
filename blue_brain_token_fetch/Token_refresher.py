@@ -9,12 +9,12 @@ import yaml
 import time
 import getpass
 import threading
+import logging
 from keycloak import KeycloakOpenID
 from keycloak.exceptions import KeycloakError, KeycloakAuthenticationError
-from blue_brain_token_fetch.logging import create_log_handler
 
-L = create_log_handler(__name__, "./Token_refresher.log")
-
+L = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class TokenFetcher:
     """
