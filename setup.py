@@ -1,13 +1,10 @@
-import imp
-
 from setuptools import setup, find_packages
-
-VERSION = imp.load_source("", "blue_brain_token_fetch/__init__.py").__version__
 
 setup(
     name="blue_brain_token_fetch",
     author="Blue Brain Project, EPFL",
-    version=VERSION,
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
     description="Package to perform fetching and automatic refreshing of the Nexus "
     "access token using Keycloak. Using the CLI you can choose to either have its "
     "value periodically written in the file whose path is given in input or either "
