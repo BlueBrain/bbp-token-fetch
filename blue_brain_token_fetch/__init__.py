@@ -2,7 +2,7 @@
 Version corresponding to the git version tag
 """
 from pkg_resources import get_distribution, DistributionNotFound
-from bba_data_integrity_check import __name__
+from blue_brain_token_fetch import __name__
 
 try:
     __version__ = get_distribution(__name__).version
