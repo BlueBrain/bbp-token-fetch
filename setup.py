@@ -15,9 +15,8 @@ setup(
     install_requires=[
         "click>=7.0",
         "python-keycloak>=0.24.0",
-        "python-keycloak",
-        "pathlib",
-        "PyYAML>=5.4",
+        "pathlib>=1.0.1",
+        "PyYAML>=5.3.1",
     ],
     extras_require={
         "dev": ["pytest>=4.3", "pytest-cov==2.10.0"],
