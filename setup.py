@@ -15,7 +15,6 @@ setup(
     install_requires=[
         "click>=7.0",
         "python-keycloak>=0.24.0",
-        "pathlib>=1.0.1",
         "PyYAML>=5.3.1",
     ],
     extras_require={
