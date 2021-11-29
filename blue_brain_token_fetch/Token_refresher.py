@@ -66,9 +66,9 @@ class TokenFetcher:
 
     def init_with_prompt(self, keycloak_config_file):
         """
-        Promt username, password and keycloak instance configuration parameters and "
-        initialise the keycloack instance and launch the perpetual refreshing of the "
-        "refresh token.
+        Promt username, password and keycloak instance configuration parameters and 
+        initialise the keycloack instance and launch the perpetual refreshing of the 
+        refresh token.
 
         Parameters
         ----------
