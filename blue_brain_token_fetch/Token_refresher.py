@@ -82,7 +82,9 @@ class TokenFetcher:
             username = detected_user
         password = getpass.getpass()
 
-        server_url, client_id, realm_name, save_config = self._return_keycloak_config()
+        server_url, client_id, realm_name, save_config = self._return_keycloak_config(
+            keycloak_config_file
+        )
         self._fetchTokens(
             username, password, server_url, client_id, realm_name, save_config
         )
