@@ -1,5 +1,5 @@
-"""These functions allow to return any given duration of the form : 
-'{float > 0}{eventual unit of time (string)}' in seconds. Time units covered are : 
+"""These functions allow to return any given duration of the form :
+'{float > 0}{eventual unit of time (string)}' in seconds. Time units covered are :
 seconds, minutes, hours and days.
 """
 import re
@@ -33,15 +33,15 @@ def convert_duration_to_sec(duration):
             coefficient = _convert_string_to_time_unit(match.group(2))
         if float(match.group(1)) > 0:
             return float(match.group(1)) * coefficient
-        else:
-            raise ValueError(
-                "The number detected in the input duration need to be positive."
-            )
-    else:
-        raise TypeError(
-            f"Input duration '{duration}' is not of the form:\n'{{float > 0}}"
-            "{{eventual unit of time}}'"
+
+        raise ValueError(
+            "The number detected in the input duration need to be positive."
         )
+
+    raise TypeError(
+        f"Input duration '{duration}' is not of the form:\n'{{float > 0}}"
+        "{{eventual unit of time}}'"
+    )
 
 
 def _convert_string_to_time_unit(time_unit):

@@ -1,0 +1,3 @@
+CLIENT_ID: bbp-atlas-pipeline2
+REALM_NAME: BBP
+SERVER_URL: https://bbpauth.epfl.ch/auth/

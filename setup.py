@@ -18,7 +18,12 @@ setup(
         "PyYAML>=5.3.1",
     ],
     extras_require={
-        "dev": ["pytest>=4.3.0", "pytest-cov==2.8.1"],
+        "dev": [
+            "pytest>=4.3.0",
+            "pytest-cov==4.1.0",
+            "pycodestyle==2.11.1",
+            "pylint==3.0.2"
+        ],
     },
     packages=find_packages(),
     include_package_data=True,

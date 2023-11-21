@@ -1,17 +1,20 @@
 """
-This CLI allows the fetching and the automatic refreshing of the Nexus token using 
+This CLI allows the fetching and the automatic refreshing of the Nexus token using
 Keycloak.
-Its value can be written periodically in a file whose path is given in input or be 
+Its value can be written periodically in a file whose path is given in input or be
 displayed on the console output as desired.
-For more informations about Nexus, see https://bluebrainnexus.io/
+For more information about Nexus, see https://bluebrainnexus.io/
 """
 import os
-import click
 import time
 import logging
-from blue_brain_token_fetch.Token_refresher import TokenFetcher
+import click
+
+from blue_brain_token_fetch.token_fetcher_base import TokenFetcherBase
+from blue_brain_token_fetch.token_fetcher_user import TokenFetcherUser
 from blue_brain_token_fetch.duration_converter import convert_duration_to_sec
 from blue_brain_token_fetch import __version__
+from blue_brain_token_fetch.token_fetcher_service import TokenFetcherService
 
 L = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -49,7 +52,7 @@ class HiddenPassword(object):
     help=(
         "Flag option allowing for 3 distinct outputs:\t\t\t"
         "- {not_given} : By default the fetched token will be written in the file "
-        "located at $HOME/.token_fetch/Token,\t\t\t\t"
+        f"located at {TokenFetcherBase.DEFAULT_TOKEN_FILEPATH_LABEL},\t\t\t\t"
         "- {-o/--output} : Providing only the flag will print the token on the "
         "console output,\t"
         "- {-o/--output} {PATH}: If a value (argument 'path') is given as a file path, "
@@ -100,14 +103,16 @@ class HiddenPassword(object):
     help=(
         "The path to the yaml file containing the configuration to create the "
         "keycloak instance. If not provided, it will search in your $HOME directory "
-        f"for a '{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml' file "
+        f"for a '{TokenFetcherBase.DEFAULT_TOKEN_FILEPATH}' file "
         "containing the keycloak configuration.\t\tIf this file does not exist or the "
         "configuration inside is wrong, the configuration will be prompt in the "
         "console output and saved in the $HOME directory under the name: "
-        f"'{os.environ.get('HOME', '')}/.token_fetch/keycloack_config.yaml'."
+        f"'{TokenFetcherBase.DEFAULT_TOKEN_FILEPATH}'."
     ),
 )
 @click.option("--verbose", "-v", count=True)
+@click.option("--service", "-s", count=False,
+              help="Whether the account is a service account or not")
 def token_fetcher(
     username,
     password,
@@ -117,9 +122,10 @@ def token_fetcher(
     timeout,
     keycloak_config_file,
     verbose,
+    service
 ):
     """
-    As a first step it fetches the Nexus access token using Keycloack and the
+    As a first step it fetches the Nexus access token using Keycloak and the
     username/password values.
     Then it writes it in the given file or displayed it on the console output every
     given 'refresh_period'.\n
@@ -127,18 +133,6 @@ def token_fetcher(
     'timeout' argument.
     """
     L.setLevel((logging.WARNING, logging.INFO, logging.DEBUG)[min(verbose, 2)])
-
-    try:
-        os.makedirs(f"{os.environ.get('HOME', '')}/.token_fetch")
-    except FileExistsError:
-        pass
-
-    if output:
-        output = f"{os.environ.get('HOME', '')}/.token_fetch/Token"
-    else:
-        output = "Console"
-    if output and path is not None:
-        output = path
 
     if isinstance(password, HiddenPassword):
         password = password.password
@@ -149,7 +143,12 @@ def token_fetcher(
         L.error(f"Error: {e}")
         exit(1)
 
-    myTokenFetcher = TokenFetcher(username, password, keycloak_config_file)
+    init_cls = TokenFetcherUser if not service else TokenFetcherService
+    try:
+        my_token_fetcher: TokenFetcherBase = init_cls(username, password, keycloak_config_file)
+    except Exception as e:
+        L.error(f"Error: {e}")
+        exit(1)
 
     start_time = time.time()
     flag_rp = 0
@@ -157,22 +156,22 @@ def token_fetcher(
     flag_console = 0
     while True:
 
-        myAccessToken = myTokenFetcher.getAccessToken()
+        my_access_token = my_token_fetcher.get_access_token()
 
         # if refresh period is superior to half of access token duration
         if (
             flag_rp == 0
-            and myTokenFetcher.getAccessTokenDuration() // 2 < refresh_period
+            and my_token_fetcher.get_access_token_duration() // 2 < refresh_period
         ):
             flag_rp += 1
             L.info(
                 f"The refresh period (= {refresh_period} seconds) is greater than the "
                 "value of half the access token life span "
-                f"(= {myTokenFetcher.getAccessTokenDuration()//2:g} seconds)). The "
+                f"(= {my_token_fetcher.get_access_token_duration() // 2:g} seconds)). The "
                 "refresh period thus becomes equal to : "
-                f"{myTokenFetcher.getAccessTokenDuration()//2:g} seconds)."
-            ),
-            refresh_period = myTokenFetcher.getAccessTokenDuration() // 2
+                f"{my_token_fetcher.get_access_token_duration() // 2:g} seconds)."
+            )
+            refresh_period = my_token_fetcher.get_access_token_duration() // 2
 
         if timeout:
             if flag_to == 0:
@@ -188,9 +187,9 @@ def token_fetcher(
                         f"The timeout argument (= {timeout:g} seconds) is shorter "
                         f"than the refresh period (= {refresh_period:g} seconds). The "
                         "app will shut down after one refresh period."
-                    ),
+                    )
 
-        if output == "Console":
+        if path is None and not output:
             if flag_console == 0:
                 flag_console += 1
                 print(
@@ -198,17 +197,21 @@ def token_fetcher(
                     f"This access token will be refreshed every {refresh_period:g} "
                     f"seconds:\n\n"
                 )
-                print(f"{myAccessToken}")
+                print(f"{my_access_token}")
             else:
-                print(f"\x1B[7A{myAccessToken}")
+                print(f"\x1B[7A{my_access_token}")
         else:
+
+            output_path = path or TokenFetcherBase.DEFAULT_TOKEN_FILEPATH
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
             L.info(
-                f"The token will be written in the file '{output}' every "
+                f"The token will be written in the file '{output_path}' every "
                 f"{refresh_period:g} seconds.\r"
             )
-            with open(output, "w") as f:
-                f.write(myAccessToken)
-            os.chmod(output, 0o0600)
+            with open(output_path, "w") as f:
+                f.write(my_access_token)
+            os.chmod(output_path, 0o0600)
 
         time.sleep(refresh_period)
 

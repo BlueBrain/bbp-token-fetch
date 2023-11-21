@@ -1,10 +1,8 @@
 include:
   - project: dke/apps/templates/job-templates
-    #ref: develop
     file: job-templates.yml
 
-
-image: "python:3.6"
+image: "python:3.8"
 
 stages:
   - unit-test
@@ -13,13 +11,23 @@ stages:
 before_script:
   - pip install .[dev]
 
+# overriding SRC_PROJECT and TEST_FOLDER in the unit_test job would not work,
+# the template job needs to be overriden to change the variables it has defined
+.unit-tests:
+  variables:
+    SRC_PROJECT: $CI_PROJECT_NAME
+    TEST_FOLDER: 'tests'
+
 unit_test:
   stage: unit-test
   extends: .unit-tests
   variables:
-   SRC_PROJECT: '$CI_PROJECT_PATH'
-   TEST_FOLDER: 'tests'
+   EXTRA_ARGS: --service_username $SERVICE_USERNAME --service_password $SERVICE_PASSWORD --regular_username $REGULAR_USERNAME --regular_password $REGULAR_PASSWORD
 
 lint_check:
   stage: lint-check
   extends: .flake8
+  script:
+  - pycodestyle blue_brain_token_fetch --max-line-length 180
+  - pylint blue_brain_token_fetch --fail-under=5
+
