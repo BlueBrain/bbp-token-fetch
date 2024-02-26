@@ -2,6 +2,7 @@ import pytest
 
 
 SERVICE_CONFIG = "./tests/tests_data/service_keycloak_config.yaml"
+REGULAR_CONFIG_WITH_CLIENT_PWD = "./tests/tests_data/regular_keycloak_config_with_password.yaml"
 REGULAR_CONFIG = "./tests/tests_data/regular_keycloak_config.yaml"
 
 
@@ -21,9 +22,11 @@ def regular_username(pytestconfig):
 def regular_password(pytestconfig):
     return pytestconfig.getoption("regular_password")
 
+
 @pytest.fixture(scope="session")
 def service_username(pytestconfig):
     return pytestconfig.getoption("service_username")
+
 
 @pytest.fixture(scope="session")
 def service_password(pytestconfig):

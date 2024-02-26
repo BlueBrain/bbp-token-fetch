@@ -16,8 +16,8 @@ class TokenFetcherService(TokenFetcherBase):
         return self._keycloak_openid.token(grant_type="client_credentials")["access_token"]
 
     @classmethod
-    def config_keys(cls):
-        return ["SERVER_URL", "REALM_NAME"]
+    def config_keys(cls) -> Dict[str, bool]:
+        return {"SERVER_URL": True, "REALM_NAME": True}
 
     def _get_keycloak_instance_and_payload(
             self, username, password, keycloak_config

@@ -19,8 +19,13 @@ class TokenFetcherUser(TokenFetcherBase):
     _refresh_token_duration = None
 
     @classmethod
-    def config_keys(cls):
-        return ["SERVER_URL", "CLIENT_ID", "REALM_NAME"]
+    def config_keys(cls) -> Dict[str, bool]:
+        return {
+            "SERVER_URL": True,
+            "CLIENT_ID": True,
+            "REALM_NAME": True,
+            "CLIENT_PASSWORD": False
+        }
 
     def get_access_token(self):
         return self._keycloak_openid.refresh_token(self._refresh_token)["access_token"]
@@ -51,6 +56,7 @@ class TokenFetcherUser(TokenFetcherBase):
         instance = KeycloakOpenID(
             server_url=keycloak_config["SERVER_URL"],
             client_id=keycloak_config["CLIENT_ID"],
+            client_secret_key=keycloak_config.get("CLIENT_PASSWORD"),
             realm_name=keycloak_config["REALM_NAME"],
         )
 

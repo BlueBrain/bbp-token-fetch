@@ -43,6 +43,6 @@ lint_check:
   stage: lint-check
   extends: .flake8
   script:
-  - pycodestyle blue_brain_token_fetch --max-line-length 180
-  - pylint blue_brain_token_fetch --fail-under=5
+  - pycodestyle blue_brain_token_fetch tests --max-line-length 180
+  - pylint blue_brain_token_fetch tests --fail-under=5
 

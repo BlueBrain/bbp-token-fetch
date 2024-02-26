@@ -84,7 +84,10 @@ class TokenFetcherBase(ABC):
 
     @classmethod
     @abstractmethod
-    def config_keys(cls) -> List[str]:
+    def config_keys(cls) -> Dict[str, bool]:
+        """
+        Keys to be retrieved from the configuration file, and whether they are mandatory or not
+        """
         pass
 
     @classmethod
@@ -109,7 +112,7 @@ class TokenFetcherBase(ABC):
                 raise ValueError("⚠️  Keycloak configuration file is empty")
 
             try:
-                [config_content[key] for key in cls.config_keys()]
+                [config_content[key] for key, mandatory in cls.config_keys().items() if mandatory]
             except KeyError as error:
                 raise KeyError(
                     f"⚠️  KeyError {error}. Mandatory keys in the keycloak configuration file are"
@@ -131,7 +134,7 @@ class TokenFetcherBase(ABC):
 
             # only accept input for default file, not specified keycloak config file
             config_dict = dict(
-                (key, input(f"Enter the {key.lower().replace('_', ' ')} : "))
+                (key, input(f"Enter the {key.lower().replace('_', ' ')}:") or None)
                 for key in cls.config_keys()
             )
 
