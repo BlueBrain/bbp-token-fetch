@@ -63,6 +63,4 @@ class TokenFetcherUser(TokenFetcherBase):
         payload = instance.token(username, password)
         self._refresh_token = payload["refresh_token"]
         self._refresh_token_duration = payload["refresh_expires_in"]
-        self._refresh_perpetually()
-
         return instance, payload

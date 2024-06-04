@@ -19,6 +19,9 @@ class TokenFetcherService(TokenFetcherBase):
     def config_keys(cls) -> Dict[str, bool]:
         return {"SERVER_URL": True, "REALM_NAME": True}
 
+    def _refresh_perpetually(self):
+        pass
+
     def _get_keycloak_instance_and_payload(
             self, username, password, keycloak_config
     ) -> Tuple[KeycloakOpenID, Dict]:

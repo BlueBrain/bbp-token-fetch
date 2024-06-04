@@ -76,11 +76,17 @@ class TokenFetcherBase(ABC):
                 username, password, keycloak_config
             )
 
+            self._refresh_perpetually()
+
             del password
 
         except (KeycloakAuthenticationError, KeycloakError) as error:
             logger.error("⚠️ %s. Authentication failed, %s", error.__class__.__name__, error)
             raise error
+
+    @abstractmethod
+    def _refresh_perpetually(self):
+        ...
 
     @classmethod
     @abstractmethod
