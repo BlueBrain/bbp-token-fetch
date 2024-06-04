@@ -4,12 +4,11 @@ It contains 2 public methods to get a fresh Nexus access token and to get its li
 duration.
 For more information about Nexus, see https://bluebrainnexus.io/
 """
-import time
-import threading
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Callable
 
 from keycloak import KeycloakOpenID
 
+from blue_brain_token_fetch.job import Job
 from blue_brain_token_fetch.token_fetcher_base import TokenFetcherBase
 
 
@@ -30,24 +29,21 @@ class TokenFetcherUser(TokenFetcherBase):
     def get_access_token(self):
         return self._keycloak_openid.refresh_token(self._refresh_token)["access_token"]
 
-    def _refresh_perpetually(self):
+    def _refresh_perpetually(self) -> Callable:
         """
         Launch the thread encapsulating '_periodically_refresh_token()'.
         """
-        token_refreshing_thread = threading.Thread(
-            target=self._periodically_refresh_token, daemon=True
+        return Job.schedule(
+            self._refresh_refresh_token, self._refresh_token_duration / 2,
+            "stopping refreshing of refresh token"
         )
-        token_refreshing_thread.start()
 
-    def _periodically_refresh_token(self):
+    def _refresh_refresh_token(self):
         """
         Periodically refresh the 'refresh token' every half of its life duration.
         """
-        while True:
-            self._refresh_token = self._keycloak_openid.refresh_token(
-                self._refresh_token
-            )["refresh_token"]
-            time.sleep(self._refresh_token_duration // 2)  # 14400
+        print("Refresh token thingy")
+        self._refresh_token = self._keycloak_openid.refresh_token(self._refresh_token)["refresh_token"]
 
     def _get_keycloak_instance_and_payload(
             self, username, password, keycloak_config

@@ -76,7 +76,7 @@ class TokenFetcherBase(ABC):
                 username, password, keycloak_config
             )
 
-            self._refresh_perpetually()
+            self._interrupt_callback = self._refresh_perpetually()
 
             del password
 
