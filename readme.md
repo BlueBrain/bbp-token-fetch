@@ -82,5 +82,10 @@ bg
   my_access_token = my_token_fetcher.get_access_token() 
   acess_token_duration = my_token_tetcher.get_access_token_duration() 
   ```
-## Maintainers
-This module was originally created by Nabil ALIBOU, DKE (nabil.alibou@epfl.ch).
+
+## Funding & Acknowledgment
+The development of this software was supported by funding to the Blue Brain Project, a 
+research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss 
+government’s ETH Board of the Swiss Federal Institutes of Technology.
+
+Copyright © 2021-2024 Blue Brain Project/EPFL
