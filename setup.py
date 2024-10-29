@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open("readme.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name="blue_brain_token_fetch",
     author="Blue Brain Project, EPFL",
@@ -9,8 +12,10 @@ setup(
     "access token using Keycloak. Using the CLI you can choose to either have its "
     "value periodically written in the file whose path is given in input or either "
     "have it periodically printed on the console output.",
-    download_url="ssh://bbpcode.epfl.ch/code/a/dke/blue_brain_token_fetch",
-    license="BBP-internal-confidential",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/BlueBrain/bbp-token-fetch",
+    license="Apache-2.0",
     python_requires=">=3.6.0",
     install_requires=[
         "click>=7.0",
