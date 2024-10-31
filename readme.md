@@ -7,21 +7,16 @@ possible to get a fresh Nexus access token and to get its life duration.
 
 For more information about Nexus, see https://bluebrainnexus.io/
 
-## Source
-You can find the source of this module here: [https://bbpgitlab.epfl.ch/dke/apps/blue_brain_nexus_token_fetch]
-
 ## Install
 Clone the repository:
 ```
-git clone https://bbpgitlab.epfl.ch/dke/apps/blue_brain_nexus_token_fetch.git
+git clone https://github.com/BlueBrain/bbp-token-fetch.git
 ```
-
-And install with pip:
+and install with `pip`:
 ```
-cd blue_brain_nexus_token_fetch
-pip install .
+pip install blue_brain_nexus_token_fetch
 ```
-From now on, the executable **blue-brain-token-fetch** is in your PATH.
+From now on, the executable **blue-brain-token-fetch** is in your `PATH`.
 
 ## CLI arguments
 - **--username** - [Prompt] Username to request the access token. Default is the username detected by whoami (environmental variable $USER).
