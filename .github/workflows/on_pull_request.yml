@@ -25,4 +25,6 @@ jobs:
       - name: Run unit tests
         env:
           TEST_FOLDER: tests
-        run: pytest  tests/test_token_fetcher_cli.py  --color yes
+        run: pytest  tests/test_token_fetcher_cli.py  --service_username "serv_user" 
+          --service_password "serv_pass" --regular_username "reg_user" 
+          --regular_password "reg_pass"  --color yes
